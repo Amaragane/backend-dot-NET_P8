@@ -1,5 +1,7 @@
 ﻿using GpsUtil.Location;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
+using TourGuide.Services;
 using TourGuide.Services.Interfaces;
 using TourGuide.Users;
 using TripPricer;
@@ -11,10 +13,12 @@ namespace TourGuide.Controllers;
 public class TourGuideController : ControllerBase
 {
     private readonly ITourGuideService _tourGuideService;
+    private readonly IRewardsService _rewardsService;
 
-    public TourGuideController(ITourGuideService tourGuideService)
+    public TourGuideController(ITourGuideService tourGuideService, IRewardsService rewardsService)
     {
         _tourGuideService = tourGuideService;
+        _rewardsService = rewardsService;
     }
 
     [HttpGet("getLocation")]
@@ -34,11 +38,24 @@ public class TourGuideController : ControllerBase
     // The reward points for visiting each Attraction.
     //    Note: Attraction reward points can be gathered from RewardsCentral
     [HttpGet("getNearbyAttractions")]
-    public ActionResult<List<Attraction>> GetNearbyAttractions([FromQuery] string userName)
+    public ActionResult GetNearbyAttractions([FromQuery] string userName)
     {
         var visitedLocation = _tourGuideService.GetUserLocation(GetUser(userName));
         var attractions = _tourGuideService.GetNearByAttractions(visitedLocation);
-        return Ok(attractions);
+        _rewardsService.CalculateRewards(GetUser(userName));
+        var result = attractions.Select(attraction => new {
+            Name = attraction.AttractionName,
+            AttractionLatitude = attraction.Latitude,
+            AttractionLongitude = attraction.Longitude,
+            UserLatitude = visitedLocation.Location.Latitude,
+            UserLongitude = visitedLocation.Location.Longitude,
+            DistanceInMiles = _rewardsService.GetDistance(attraction, visitedLocation.Location),
+            RewardPoints = GetUser(userName).UserRewards
+
+        });
+
+        string json = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
+        return Ok(json);
     }
 
     [HttpGet("getRewards")]

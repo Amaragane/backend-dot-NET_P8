@@ -1,7 +1,10 @@
 ﻿using GpsUtil.Location;
 using Microsoft.Extensions.Logging;
+using RewardCentral;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
+using System.Text.Json;
 using TourGuide.LibrairiesWrappers.Interfaces;
 using TourGuide.Services.Interfaces;
 using TourGuide.Users;
@@ -44,7 +47,7 @@ public class TourGuideService : ITourGuideService
         AddShutDownHook();
     }
 
-    public List<UserReward> GetUserRewards(User user)
+    public ConcurrentBag<UserReward> GetUserRewards(User user)
     {
         return user.UserRewards;
     }
@@ -55,8 +58,8 @@ public class TourGuideService : ITourGuideService
     }
 
     public User GetUser(string userName)
-    {
-        return _internalUserMap.ContainsKey(userName) ? _internalUserMap[userName] : null;
+    { 
+        return _internalUserMap.ContainsKey(userName) ? _internalUserMap[userName] : null!;
     }
 
     public List<User> GetAllUsers()
@@ -98,10 +101,15 @@ public class TourGuideService : ITourGuideService
             if (_rewardsService.IsWithinAttractionProximity(attraction, visitedLocation.Location))
             {
                 nearbyAttractions.Add(attraction);
-            }
+            }       
         }
+        var nearbyAttractionsSorted = nearbyAttractions
+    .OrderBy(obj => _rewardsService.GetDistance(obj, visitedLocation.Location))
+    .ToList();
 
-        return nearbyAttractions;
+        nearbyAttractionsSorted = nearbyAttractionsSorted.Take(5).ToList(); // Limit to 5 attractions
+
+        return nearbyAttractionsSorted;
     }
 
     private void AddShutDownHook()

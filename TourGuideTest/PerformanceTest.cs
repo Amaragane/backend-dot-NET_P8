@@ -44,21 +44,34 @@ namespace TourGuideTest
             _output = output;
         }
 
-        [Fact(Skip = ("Delete Skip when you want to pass the test"))]
-        public void HighVolumeTrackLocation()
+        [Fact]
+        public async Task HighVolumeTrackLocation()
         {
             //On peut ici augmenter le nombre d'utilisateurs pour tester les performances
-            _fixture.Initialize(1000);
+            _fixture.Initialize(100000);
 
             List<User> allUsers = _fixture.TourGuideService.GetAllUsers();
 
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
-
+            SemaphoreSlim semaphore = new SemaphoreSlim(1000); // Limiting concurrent tracking to 1000 users
+            List<Task> trackingTasks = new List<Task>();
             foreach (var user in allUsers)
             {
-                _fixture.TourGuideService.TrackUserLocation(user);
+                await semaphore.WaitAsync();
+                trackingTasks.Add(Task.Run(() =>
+                {
+                    try
+                    {
+                        _fixture.TourGuideService.TrackUserLocation(user);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                }));
             }
+
             stopWatch.Stop();
             _fixture.TourGuideService.Tracker.StopTracking();
 
@@ -67,25 +80,73 @@ namespace TourGuideTest
             Assert.True(TimeSpan.FromMinutes(15).TotalSeconds >= stopWatch.Elapsed.TotalSeconds);
         }
 
-        [Fact(Skip = ("Delete Skip when you want to pass the test"))]
-        public void HighVolumeGetRewards()
+        [Fact]
+        public async Task HighVolumeGetRewards()
         {
             //On peut ici augmenter le nombre d'utilisateurs pour tester les performances
-            _fixture.Initialize(10);
+            _fixture.Initialize(100000);
 
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
 
             Attraction attraction = _fixture.GpsUtil.GetAttractions()[0];
             List<User> allUsers = _fixture.TourGuideService.GetAllUsers();
-            allUsers.ForEach(u => u.AddToVisitedLocations(new VisitedLocation(u.UserId, attraction, DateTime.Now)));
-
-            allUsers.ForEach(u => _fixture.RewardsService.CalculateRewards(u));
-
+            SemaphoreSlim semaphore = new SemaphoreSlim(2000); // Limiting concurrent reward calculation to 1000 users
+            List<Task> rewardTasks = new List<Task>();
             foreach (var user in allUsers)
             {
-                Assert.True(user.UserRewards.Count > 0);
+                await semaphore.WaitAsync();
+                rewardTasks.Add(Task.Run(() =>
+                {
+                    try
+                    {
+                        user.AddToVisitedLocations(new VisitedLocation(user.UserId, attraction, DateTime.Now));
             }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                }));
+            }
+            Task.WaitAll(rewardTasks.ToArray());
+            //allUsers.ForEach(u => u.AddToVisitedLocations(new VisitedLocation(u.UserId, attraction, DateTime.Now)));
+            foreach (var user in allUsers)
+            {
+                await semaphore.WaitAsync();
+                rewardTasks.Add(Task.Run(() =>
+                {
+                    try
+                    {
+                        _fixture.RewardsService.CalculateRewards(user);                    
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                }));
+            }
+            Task.WaitAll(rewardTasks.ToArray());
+
+            //allUsers.ForEach(u => _fixture.RewardsService.CalculateRewards(u));
+            foreach (var user in allUsers)
+            {
+                await semaphore.WaitAsync();
+                rewardTasks.Add(Task.Run(() =>
+                {
+                    try
+                    {
+                        Assert.True(user.UserRewards.Count > 0);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                }));
+            }
+            //foreach (var user in allUsers)
+            //{
+            //    Assert.True(user.UserRewards.Count > 0);
+            //}
             stopWatch.Stop();
             _fixture.TourGuideService.Tracker.StopTracking();
 

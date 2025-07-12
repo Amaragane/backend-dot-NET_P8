@@ -10,7 +10,7 @@ public class RewardsService : IRewardsService
     private const double StatuteMilesPerNauticalMile = 1.15077945;
     private readonly int _defaultProximityBuffer = 10;
     private int _proximityBuffer;
-    private readonly int _attractionProximityRange = 200;
+    private readonly int _attractionProximityRange = int.MaxValue;
     private readonly IGpsUtil _gpsUtil;
     private readonly IRewardCentral _rewardsCentral;
     private static int count = 0;
@@ -35,9 +35,8 @@ public class RewardsService : IRewardsService
     public void CalculateRewards(User user)
     {
         count++;
-        List<VisitedLocation> userLocations = user.VisitedLocations;
+        var userLocations = user.VisitedLocations;
         List<Attraction> attractions = _gpsUtil.GetAttractions();
-
         foreach (var visitedLocation in userLocations)
         {
             foreach (var attraction in attractions)
@@ -46,7 +45,8 @@ public class RewardsService : IRewardsService
                 {
                     if (NearAttraction(visitedLocation, attraction))
                     {
-                        user.AddUserReward(new UserReward(visitedLocation, attraction, GetRewardPoints(attraction, user)));
+                        user.UserRewards.Add(new UserReward(visitedLocation, attraction, GetRewardPoints(attraction, user)));
+
                     }
                 }
             }
