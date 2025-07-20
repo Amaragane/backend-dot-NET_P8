@@ -1,6 +1,7 @@
 stages:
   - build
   - test
+  - quality
 
 variables:
   DOTNET_CLI_TELEMETRY_OPTOUT: '1' # Optionnel, désactive la télémétrie .NET
@@ -20,4 +21,12 @@ test:
   stage: test
   script:
   - dotnet test Api/TourGuide.csproj --no-build --verbosity normal
+
+  quality:
+  stage: quality
+  allow_failure: true
+  script:
+    - dotnet tool install -g dotnet-format
+    - export PATH="$PATH:/root/.dotnet/tools"
+    - dotnet format --verify-no-changes
 
