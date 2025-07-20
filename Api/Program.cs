@@ -19,7 +19,6 @@ builder.Services.AddScoped<ITourGuideService, TourGuideService>();
 builder.Services.AddScoped<IGpsUtil, GpsUtilWrapper>();
 builder.Services.AddScoped<IRewardCentral, RewardCentralWrapper>();
 
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
