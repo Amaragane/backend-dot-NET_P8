@@ -22,7 +22,7 @@ test:
   script:
   - dotnet test Api/TourGuide.csproj --no-build --verbosity normal
 
-  quality:
+quality:
   stage: quality
   allow_failure: true
   script:
