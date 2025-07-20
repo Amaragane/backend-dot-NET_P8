@@ -20,7 +20,7 @@ namespace TourGuideTest
             _fixture = fixture;
         }
 
-        public void Dispose()
+        private void Dispose()
         {
             _fixture.Cleanup();
         }
