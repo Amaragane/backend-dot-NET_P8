@@ -5,7 +5,7 @@ stages:
 variables:
   DOTNET_CLI_TELEMETRY_OPTOUT: '1' # Optionnel, désactive la télémétrie .NET
 
-image: mcr.microsoft.com/dotnet/sdk:8.0  # Spécifie l'image Docker officielle .NET
+image: mcr.microsoft.com/dotnet/sdk:7.0  # Spécifie l'image Docker officielle .NET
 
 before_script:
   - dotnet restore
