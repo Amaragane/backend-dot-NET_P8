@@ -16,11 +16,11 @@ namespace TourGuideTest
     {
         public DependencyFixture()
         {
-            Initialize();            
+            Initialize();
         }
 
         public void Cleanup()
-        {           
+        {
             Initialize();
         }
 

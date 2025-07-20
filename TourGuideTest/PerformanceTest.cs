@@ -101,7 +101,7 @@ namespace TourGuideTest
                     try
                     {
                         user.AddToVisitedLocations(new VisitedLocation(user.UserId, attraction, DateTime.Now));
-            }
+                    }
                     finally
                     {
                         semaphore.Release();
@@ -117,7 +117,7 @@ namespace TourGuideTest
                 {
                     try
                     {
-                        _fixture.RewardsService.CalculateRewards(user);                    
+                        _fixture.RewardsService.CalculateRewards(user);
                     }
                     finally
                     {

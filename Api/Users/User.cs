@@ -41,7 +41,7 @@ public class User
         //{
         //    UserRewards.Add(userReward);
         //}
-        if( !UserRewards.Any(r => r.Attraction.AttractionName == userReward.Attraction.AttractionName))
+        if (!UserRewards.Any(r => r.Attraction.AttractionName == userReward.Attraction.AttractionName))
         {
             UserRewards.Add(userReward);
         }

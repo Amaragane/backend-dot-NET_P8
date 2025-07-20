@@ -19,7 +19,7 @@ public class RewardsService : IRewardsService
     public RewardsService(IGpsUtil gpsUtil, IRewardCentral rewardCentral)
     {
         _gpsUtil = gpsUtil;
-        _rewardsCentral =rewardCentral;
+        _rewardsCentral = rewardCentral;
         _proximityBuffer = _defaultProximityBuffer;
     }
 
@@ -62,7 +62,7 @@ public class RewardsService : IRewardsService
     .OrderBy(r => r.Attraction.AttractionName)
     .ToList();
         user.UserRewards = new ConcurrentBag<UserReward>(userRewardsSorted);
-        foreach (var reward in userRewardsSorted )
+        foreach (var reward in userRewardsSorted)
         {
 
             Console.WriteLine(reward.Attraction.AttractionName + " - " + reward.RewardPoints + " points");

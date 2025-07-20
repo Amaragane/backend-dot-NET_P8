@@ -56,6 +56,6 @@ public class TripPricer
             8 => "Dancing Waves Cruselines and Partners",
             9 => "AdventureCo",
             _ => "Cure-Your-Blues",
-        };        
+        };
     }
 }

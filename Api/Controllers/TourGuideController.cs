@@ -43,7 +43,8 @@ public class TourGuideController : ControllerBase
         var visitedLocation = _tourGuideService.GetUserLocation(GetUser(userName));
         var attractions = _tourGuideService.GetNearByAttractions(visitedLocation);
         _rewardsService.CalculateRewards(GetUser(userName));
-        var result = attractions.Select(attraction => new {
+        var result = attractions.Select(attraction => new
+        {
             Name = attraction.AttractionName,
             AttractionLatitude = attraction.Latitude,
             AttractionLongitude = attraction.Longitude,

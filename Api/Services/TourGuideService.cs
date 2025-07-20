@@ -58,7 +58,7 @@ public class TourGuideService : ITourGuideService
     }
 
     public User GetUser(string userName)
-    { 
+    {
         return _internalUserMap.ContainsKey(userName) ? _internalUserMap[userName] : null!;
     }
 
@@ -95,13 +95,13 @@ public class TourGuideService : ITourGuideService
 
     public List<Attraction> GetNearByAttractions(VisitedLocation visitedLocation)
     {
-        List<Attraction> nearbyAttractions = new ();
+        List<Attraction> nearbyAttractions = new();
         foreach (var attraction in _gpsUtil.GetAttractions())
         {
             if (_rewardsService.IsWithinAttractionProximity(attraction, visitedLocation.Location))
             {
                 nearbyAttractions.Add(attraction);
-            }       
+            }
         }
         var nearbyAttractionsSorted = nearbyAttractions
     .OrderBy(obj => _rewardsService.GetDistance(obj, visitedLocation.Location))
