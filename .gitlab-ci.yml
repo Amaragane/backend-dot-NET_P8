@@ -21,7 +21,7 @@ test:
   stage: test
   script:
     - dotnet test TourGuideTest/TourGuideTest.csproj --logger:"junit;LogFilePath=TourGuideTest/TestResults/test-results.xml"
-    - ls -R TourGuideTest/TestResults/
+    - ls -lR TourGuideTest/TestResults/ || find . -name test-results.xml
   artifacts:
     when: always
     reports:
