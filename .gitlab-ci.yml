@@ -20,7 +20,7 @@ build:
 test:
   stage: test
   script:
-    - dotnet test TourGuideTest/TourGuideTest.csproj --no-build --logger:"junit;LogFilePath=TourGuideTest/TestResults/test-results.xml"
+    - dotnet test TourGuideTest/TourGuideTest.csproj --logger:"junit;LogFilePath=TourGuideTest/TestResults/test-results.xml"
     - ls -R TourGuideTest/TestResults/
   artifacts:
     when: always
