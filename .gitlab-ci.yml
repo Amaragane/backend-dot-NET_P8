@@ -20,13 +20,13 @@ build:
 test:
   stage: test
   script:
-  - dotnet test Api/TourGuide.csproj --no-build --logger:"junit;LogFilePath=Api/TestResults/test-results.xml"
+    - dotnet test TourGuideTest/TourGuideTest.csproj --no-build --logger:"junit;LogFilePath=TourGuideTest/TestResults/test-results.xml"
   artifacts:
-    when: always
-    reports:
-      junit: Api/TestResults/test-results.xml
-    paths:
-      - Api/TestResults/
+  when: always
+  reports:
+    junit: TourGuideTest/TestResults/test-results.xml
+  paths:
+    - TourGuideTest/TestResults/
 
 quality:
   stage: quality
