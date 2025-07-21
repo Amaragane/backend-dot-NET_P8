@@ -20,7 +20,8 @@ build:
 test:
   stage: test
   script:
-    - dotnet test TourGuideTest/TourGuideTest.csproj --logger:"junit;LogFilePath=TourGuideTest/TestResults/test-results.xml"
+    - mkdir -p TourGuideTest/TestResults
+    - dotnet test TourGuideTest/TourGuideTest.csproj --logger:"junit;LogFilePath=TestResults/test-results.xml"
     - ls -lR TourGuideTest/TestResults/ || find . -name test-results.xml
   artifacts:
     when: always
