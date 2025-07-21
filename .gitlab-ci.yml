@@ -21,12 +21,14 @@ test:
   stage: test
   script:
     - dotnet test TourGuideTest/TourGuideTest.csproj --no-build --logger:"junit;LogFilePath=TourGuideTest/TestResults/test-results.xml"
+    - ls -R TourGuideTest/TestResults/
   artifacts:
-  when: always
-  reports:
-    junit: TourGuideTest/TestResults/test-results.xml
-  paths:
-    - TourGuideTest/TestResults/
+    when: always
+    reports:
+      junit: TourGuideTest/TestResults/test-results.xml
+    paths:
+      - TourGuideTest/TestResults/
+
 
 quality:
   stage: quality
