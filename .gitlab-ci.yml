@@ -20,7 +20,13 @@ build:
 test:
   stage: test
   script:
-  - dotnet test Api/TourGuide.csproj --no-build --verbosity normal
+  - dotnet test Api/TourGuide.csproj --no-build --logger:"junit;LogFilePath=TestResults/test-results.xml"
+  artifacts:
+    when: always
+    reports:
+      junit: TestResults/test-results.xml
+    paths:
+      - TestResults/
 
 quality:
   stage: quality
