@@ -15,14 +15,10 @@ before_script:
 build:
   stage: build
   script:
-    - mkdir -p Api/BuildResult
-    - dotnet build --configuration Release --logger:"junit;LogFilePath=BuildResult/build-results.xml" 
+    - dotnet build --configuration Release" 
   artifacts:
     when: always
-    reports:
-      junit: Api/BuildResult/build-results.xml
     paths:
-      - Api/BuildResult/
       - Api/bin/Release/net7.0/
 test:
   stage: test
