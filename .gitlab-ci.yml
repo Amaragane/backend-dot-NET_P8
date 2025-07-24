@@ -15,8 +15,14 @@ before_script:
 build:
   stage: build
   script:
-    - dotnet build --configuration Release
-
+    - mkdir -p TourGuide/BuildResult
+    - dotnet build --configuration Release --logger:"junit;LogFilePath=BuildResult/build-results.xml" 
+  artifacts:
+    when: always
+    reports:
+      junit: TourGuide/BuildResult/build-results.xml
+    paths:
+      - TourGuide/BuildResult/
 test:
   stage: test
   script:
