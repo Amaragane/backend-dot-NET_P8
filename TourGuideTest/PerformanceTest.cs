@@ -48,13 +48,13 @@ namespace TourGuideTest
         public async Task HighVolumeTrackLocation()
         {
             //On peut ici augmenter le nombre d'utilisateurs pour tester les performances
-            _fixture.Initialize(100);
+            _fixture.Initialize(100000);
 
             List<User> allUsers = _fixture.TourGuideService.GetAllUsers();
 
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
-            SemaphoreSlim semaphore = new SemaphoreSlim(1000); // Limiting concurrent tracking to 1000 users
+            SemaphoreSlim semaphore = new SemaphoreSlim(200); // Limiting concurrent tracking to 1000 users
             List<Task> trackingTasks = new List<Task>();
             foreach (var user in allUsers)
             {
@@ -84,14 +84,14 @@ namespace TourGuideTest
         public async Task HighVolumeGetRewards()
         {
             //On peut ici augmenter le nombre d'utilisateurs pour tester les performances
-            _fixture.Initialize(100);
+            _fixture.Initialize(100000);
 
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
 
             Attraction attraction = _fixture.GpsUtil.GetAttractions()[0];
             List<User> allUsers = _fixture.TourGuideService.GetAllUsers();
-            SemaphoreSlim semaphore = new SemaphoreSlim(2000); // Limiting concurrent reward calculation to 1000 users
+            SemaphoreSlim semaphore = new SemaphoreSlim(200);
             List<Task> rewardTasks = new List<Task>();
             foreach (var user in allUsers)
             {
@@ -108,7 +108,7 @@ namespace TourGuideTest
                     }
                 }));
             }
-            Task.WaitAll(rewardTasks.ToArray());
+            await Task.WhenAll(rewardTasks.ToArray());
             //allUsers.ForEach(u => u.AddToVisitedLocations(new VisitedLocation(u.UserId, attraction, DateTime.Now)));
             foreach (var user in allUsers)
             {
@@ -125,7 +125,7 @@ namespace TourGuideTest
                     }
                 }));
             }
-            Task.WaitAll(rewardTasks.ToArray());
+            await Task.WhenAll(rewardTasks.ToArray());
 
             //allUsers.ForEach(u => _fixture.RewardsService.CalculateRewards(u));
             foreach (var user in allUsers)

@@ -38,36 +38,40 @@ public class RewardsService : IRewardsService
         count++;
         var userLocations = user.VisitedLocations;
         List<Attraction> attractions = _gpsUtil.GetAttractions();
-        ConcurrentBag<Attraction> userAttraction = new ConcurrentBag<Attraction>();
-        List<UserReward> userRewards = new List<UserReward>();
+
+        // Cache HashSet pour un test rapide si la récompense existe déjà
+        var rewardedAttractions = new HashSet<string>(user.UserRewards.Select(r => r.Attraction.AttractionName));
+
+        var tempRewards = new ConcurrentDictionary<string, UserReward>();
+
+        ParallelOptions options = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
+
         foreach (var visitedLocation in userLocations)
         {
-            foreach (var attraction in attractions)
+            Parallel.ForEach(attractions, options, attraction =>
             {
-
-                if (!user.UserRewards.Any(r => r.Attraction.AttractionName == attraction.AttractionName))
+                if (!rewardedAttractions.Contains(attraction.AttractionName))
                 {
                     if (NearAttraction(visitedLocation, attraction))
                     {
-                        user.UserRewards.Add(new UserReward(visitedLocation, attraction, GetRewardPoints(attraction, user)));
-
+                        var key = attraction.AttractionName;
+                        var reward = new UserReward(visitedLocation, attraction, GetRewardPoints(attraction, user));
+                        tempRewards.TryAdd(key, reward);
                     }
                 }
-
-            }
+            });
         }
-        var userRewardsSorted = user.UserRewards
-    .GroupBy(r => r.Attraction.AttractionName)
-    .Select(g => g.OrderByDescending(r => r.RewardPoints).First())
-    .OrderBy(r => r.Attraction.AttractionName)
-    .ToList();
-        user.UserRewards = new ConcurrentBag<UserReward>(userRewardsSorted);
-        foreach (var reward in userRewardsSorted)
-        {
 
-            Console.WriteLine(reward.Attraction.AttractionName + " - " + reward.RewardPoints + " points");
-        }
+        var mergedRewards = user.UserRewards.Concat(tempRewards.Values)
+            .GroupBy(r => r.Attraction.AttractionName)
+            .Select(g => g.OrderByDescending(r => r.RewardPoints).First())
+            .OrderBy(r => r.Attraction.AttractionName)
+            .ToList();
+
+        user.UserRewards = new ConcurrentBag<UserReward>(mergedRewards);
     }
+
+
 
     public bool IsWithinAttractionProximity(Attraction attraction, Locations location)
     {
